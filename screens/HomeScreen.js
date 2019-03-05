@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   View,
+  FlatList,
 } from 'react-native';
 import { WebBrowser } from 'expo';
 
@@ -15,6 +16,11 @@ import { MonoText } from '../components/StyledText';
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
+  };
+
+  state = {
+    numberPeople: '0',
+    people: [],
   };
 
   render() {
@@ -42,33 +48,17 @@ export default class HomeScreen extends React.Component {
             <TouchableOpacity onPress={this._handleApi} style={styles.helpLink}>
               <Text style={styles.helpLinkText}>Get space data!</Text>
             </TouchableOpacity>
+
+            <Text>
+              Number of people in space: {this.state.numberPeople}
+            </Text>
+            <FlatList
+              data={this.state.people}
+              renderItem={({item}) => <Text style={styles.item}>{item.key}</Text>} />
           </View>
         </ScrollView>
       </View>
     );
-  }
-
-  _maybeRenderDevelopmentModeWarning() {
-    if (__DEV__) {
-      const learnMoreButton = (
-        <Text onPress={this._handleLearnMorePress} style={styles.helpLinkText}>
-          Learn more
-        </Text>
-      );
-
-      return (
-        <Text style={styles.developmentModeText}>
-          Development mode is enabled, your app will be slower but you can use useful development
-          tools. {learnMoreButton}
-        </Text>
-      );
-    } else {
-      return (
-        <Text style={styles.developmentModeText}>
-          You are not in development mode, your app will run at full speed.
-        </Text>
-      );
-    }
   }
 
   _handleLearnMorePress = () => {
@@ -89,11 +79,22 @@ export default class HomeScreen extends React.Component {
                   mode: 'cors',
                   cache: 'default' };
 
+    this.setState({
+      numberPeople: 0,
+      people: [{}],
+    });
+
     fetch('http://api.open-notify.org/astros.json', myInit).then((res) => {
       let responseJson = JSON.parse(res._bodyInit);
-      console.log('Number of people in space: ' + responseJson.number);
+      this.setState({
+        numberPeople: responseJson.number
+      });
+      let listPeople = [{}];
       responseJson.people.forEach(person => {
-        console.log('Name: ' + person.name);
+        listPeople.push({key: person.name})
+      });
+      this.setState({
+        people: listPeople
       });
     });
   };
