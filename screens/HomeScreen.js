@@ -33,33 +33,17 @@ export default class HomeScreen extends React.Component {
           </View>
 
           <View style={styles.getStartedContainer}>
-            {this._maybeRenderDevelopmentModeWarning()}
+            <Text style={styles.getStartedText}>Simple space data fetcher</Text>
 
-            <Text style={styles.getStartedText}>Get started by opening</Text>
-
-            <View style={[styles.codeHighlightContainer, styles.homeScreenFilename]}>
-              <MonoText style={styles.codeHighlightText}>screens/HomeScreen.js</MonoText>
-            </View>
-
-            <Text style={styles.getStartedText}>
-              Change this text and your app will automatically reload.
+            <Text style={styles.developmentModeText}>
+              powered by OpenNotify
             </Text>
-          </View>
 
-          <View style={styles.helpContainer}>
-            <TouchableOpacity onPress={this._handleHelpPress} style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>Help, it didn’t automatically reload!</Text>
+            <TouchableOpacity onPress={this._handleApi} style={styles.helpLink}>
+              <Text style={styles.helpLinkText}>Get space data!</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
-
-        <View style={styles.tabBarInfoContainer}>
-          <Text style={styles.tabBarInfoText}>This is a tab bar. You can edit it in:</Text>
-
-          <View style={[styles.codeHighlightContainer, styles.navigationFilename]}>
-            <MonoText style={styles.codeHighlightText}>navigation/MainTabNavigator.js</MonoText>
-          </View>
-        </View>
       </View>
     );
   }
@@ -95,6 +79,23 @@ export default class HomeScreen extends React.Component {
     WebBrowser.openBrowserAsync(
       'https://docs.expo.io/versions/latest/guides/up-and-running.html#can-t-see-your-changes'
     );
+  };
+
+  _handleApi = () => {
+    let myHeaders = new Headers();
+
+    let myInit = { method: 'GET',
+                  headers: myHeaders,
+                  mode: 'cors',
+                  cache: 'default' };
+
+    fetch('http://api.open-notify.org/astros.json', myInit).then((res) => {
+      let responseJson = JSON.parse(res._bodyInit);
+      console.log('Number of people in space: ' + responseJson.number);
+      responseJson.people.forEach(person => {
+        console.log('Name: ' + person.name);
+      });
+    });
   };
 }
 
